@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Deployment</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(to bottom right, #4e73df, #224abe);
+        color: #fff;
+        text-align: center;
+      }
+
+      h1 {
+        margin-top: 50px;
+      }
+
+      form {
+        max-width: 600px;
+        margin: 0 auto;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      label {
+        display: block;
+        margin: 10px 0 5px;
+        position: relative;
+      }
+
+      select,
+      button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      select {
+        appearance: none;
+      }
+
+      input[type="range"] {
+        width: 80%;
+        margin: 10px 0;
+      }
+
+      input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      .slider-value {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 5px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 5px;
+        font-size: 14px;
+        display: none;
+      }
+
+      button {
+        background: #4e73df;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #224abe;
+      }
+
+      p {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var sliders = document.querySelectorAll('input[type="range"]');
+        var resetButton = document.getElementById("resetButton");
+        var values = {};
+
+        sliders.forEach(function (slider) {
+          var output = document.createElement("strong");
+          output.textContent = slider.value;
+          slider.parentNode.insertBefore(output, slider.nextSibling);
+
+          values[slider.name] = slider.value;
+
+          slider.addEventListener("input", function () {
+            output.textContent = this.value;
+            values[slider.name] = this.value;
+          });
+        });
+
+        resetButton.addEventListener("click", function () {
+          sliders.forEach(function (slider) {
+            slider.value = values[slider.name];
+            slider.nextSibling.textContent = slider.value;
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Predict House Prices in Ames City, Iowa</h1>
+
+    <form method="post">
+      <label for="MedianHousePrice">Neighborhood:</label>
+      <select name="MedianHousePrice" required>
+        {% for location in locations %}
+        <option value="{{ location }}" {% if loop.first %} selected {% endif %}>
+          {{ location }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <label for="OverallQual">Overall Quality:</label>
+      <input
+        type="range"
+        name="OverallQual"
+        min="1"
+        max="10"
+        value="5"
+        required
+      />
+
+      <label for="ExterQual">Exterior Quality:</label>
+      <input type="range" name="ExterQual" min="1" max="5" value="3" required />
+
+      <label for="GrLivArea">Living Area (in sqft.):</label>
+      <input
+        type="range"
+        name="GrLivArea"
+        min="100"
+        max="4500"
+        value="1500"
+        required
+      />
+
+      <label for="TotRmsAbvGrd">Total Rooms:</label>
+      <input
+        type="range"
+        name="TotRmsAbvGrd"
+        min="0"
+        max="15"
+        value="5"
+        required
+      />
+
+      <label for="Total_Bathrooms">Total Bathrooms:</label>
+      <input
+        type="range"
+        name="Total_Bathrooms"
+        min="0"
+        max="6"
+        value="2"
+        required
+      />
+
+      <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction %}
+    <p>Predicted House Price: ${{ "{:,.0f}".format(prediction[0]) }}</p>
+    {% endif %}
+  </body>
+</html>
